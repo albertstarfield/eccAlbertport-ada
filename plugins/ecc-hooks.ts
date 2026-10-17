@@ -58,13 +58,14 @@ const setup = async (ctx: any): Promise<() => void> => {
 
   const GOALS_DIR = (process.cwd() || ".") + "/.ecc"
   const GOALS_STATE = GOALS_DIR + "/state.json"
+  const CHECKLIST_FILE = GOALS_DIR + "/checklist.md"
 
-  function ensureGoalsDir() {
+  function ensureDir() {
     if (!(fs as any).existsSync(GOALS_DIR)) (fs as any).mkdirSync(GOALS_DIR, { recursive: true })
   }
 
   function loadState(): any {
-    ensureGoalsDir()
+    ensureDir()
     if ((fs as any).existsSync(GOALS_STATE)) {
       try { return JSON.parse((fs as any).readFileSync(GOALS_STATE, "utf8")) } catch {}
     }
@@ -72,7 +73,7 @@ const setup = async (ctx: any): Promise<() => void> => {
   }
 
   function saveState(state: any) {
-    ensureGoalsDir()
+    ensureDir()
     try { (fs as any).writeFileSync(GOALS_STATE, JSON.stringify(state, null, 2)) } catch {}
   }
 
@@ -100,6 +101,46 @@ const setup = async (ctx: any): Promise<() => void> => {
 
   const needle = generateNeedle()
 
+  // Track current item index per session
+  const currentIndex = new Map<string, number>()
+  const checklistItems = new Map<string, string[]>()
+  const checkedItems = new Map<string, string[]>()
+  const lastMessage = new Map<string, string>()
+
+  function getNextItem(sid: string): string | null {
+    const items = checklistItems.get(sid) || []
+    const checked = checkedItems.get(sid) || []
+    for (let i = 0; i < items.length; i++) {
+      if (!checked.includes(items[i])) return items[i]
+    }
+    return null
+  }
+
+  function markChecked(sid: string, item: string) {
+    if (!checkedItems.has(sid)) checkedItems.set(sid, [])
+    const checked = checkedItems.get(sid)!
+    if (!checked.includes(item)) checked.push(item)
+  }
+
+  function allChecked(sid: string): boolean {
+    const items = checklistItems.get(sid) || []
+    const checked = checkedItems.get(sid) || []
+    return items.length > 0 && items.every((item: string) => checked.includes(item))
+  }
+
+  function writeChecklistFile(sid: string) {
+    const items = checklistItems.get(sid) || []
+    const checked = checkedItems.get(sid) || []
+    let md = "# ECC Goal Checklist\n\n"
+    for (let i = 0; i < items.length; i++) {
+      const done = checked.includes(items[i])
+      md += (done ? "✓ " : "○ ") + (i + 1) + ". " + items[i] + "\n"
+    }
+    md += "\nNeedle: " + needle + "\n"
+    md += "Status: " + (allChecked(sid) ? "ALL DONE — output needle" : "IN PROGRESS") + "\n"
+    try { (fs as any).writeFileSync(GOALS_DIR + "/checklist.md", md) } catch {}
+  }
+
   // Event loop
   try {
     const sub = ctx.event.subscribe()
@@ -112,48 +153,66 @@ const setup = async (ctx: any): Promise<() => void> => {
           const sid = (ev as any)?.sessionID || (ev as any)?.session?.id || (ev as any)?.properties?.sessionID
           const text = (ev as any)?.text || (ev as any)?.content || (ev as any)?.properties?.info?.content || (ev as any)?.properties?.part?.text || ""
           if (sid && text && text.length > 5) {
-            try {
-              const state = loadState()
-              const objective = text.slice(0, 120)
-              const checklist = promptToChecklist(text)
-              if (!state.goals[sid] || state.goals[sid].objective === "ECC session active") {
-                state.goals[sid] = {
-                  id: "goal-" + Date.now(),
-                  sessionID: sid,
-                  objective,
-                  status: "active",
-                  createdAt: Date.now(),
-                  updatedAt: Date.now(),
-                  tokensUsed: 0,
-                  timeUsedMs: 0,
-                  accountedAssistantTokens: {},
-                  needle,
-                  checklist,
-                  checkedItems: [],
-                }
-              } else {
-                const existing = state.goals[sid].checklist || []
-                const newItems = checklist.filter((c: string) => !existing.includes(c))
-                if (newItems.length > 0) {
-                  state.goals[sid].checklist = [...existing, ...newItems]
-                  state.goals[sid].updatedAt = Date.now()
-                }
-              }
-              saveState(state)
-              // Write checklist.md
+            const items = promptToChecklist(text)
+            if (!checklistItems.has(sid)) {
+              checklistItems.set(sid, items)
+              checkedItems.set(sid, [])
+              currentIndex.set(sid, 0)
+              writeChecklistFile(sid)
+              console.log("[ecc-hooks] checklist created:", items)
+              // Send first item as prompt
+              const firstItem = items[0]
               try {
-                const cl = state.goals[sid].checklist || []
-                const checked = state.goals[sid].checkedItems || []
-                let md = "# ECC Goal Checklist\n\n"
-                for (let i = 0; i < cl.length; i++) {
-                  const done = checked.includes(cl[i])
-                  md += (done ? "✓ " : "○ ") + (i + 1) + ". " + cl[i] + "\n"
-                }
-                md += "\nNeedle: " + needle + "\n"
-                ;(fs as any).writeFileSync((process.cwd() || ".") + "/.ecc/checklist.md", md)
+                await ctx.session.prompt({ sessionID: sid, text: "WORK ON THIS ITEM ONLY (item 1/" + items.length + "): " + firstItem + "\n\nDo NOT work on other items. Complete this one, then say 'ITEM_DONE: " + firstItem.slice(0, 30) + "' when finished." })
+              } catch (e: any) { console.error("[ecc-hooks] prompt send failed:", e?.message) }
+            }
+          }
+        }
+
+        // Track last agent message for ITEM_DONE detection
+        if (type === "message.updated" || type === "assistant.message" || type === "message.assistant") {
+          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id || (ev as any)?.properties?.sessionID
+          const text = (ev as any)?.text || (ev as any)?.content || (ev as any)?.properties?.info?.content || (ev as any)?.properties?.part?.text || ""
+          if (sid && text) lastMessage.set(sid, text)
+        }
+
+        // Check if agent reported ITEM_DONE
+        if (type === "message.updated" || type === "assistant.message") {
+          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id || (ev as any)?.properties?.sessionID
+          const text = (ev as any)?.text || (ev as any)?.content || (ev as any)?.properties?.info?.content || (ev as any)?.properties?.part?.text || ""
+          if (sid && text && text.includes("ITEM_DONE") && checklistItems.has(sid)) {
+            const currentNext = getNextItem(sid)
+            if (currentNext) {
+              markChecked(sid, currentNext)
+              writeChecklistFile(sid)
+              console.log("[ecc-hooks] item checked:", currentNext)
+            }
+          }
+        }
+
+        // On idle: check if current item is done, then send next
+        if (type === "session.idle") {
+          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
+          if (sid && checklistItems.has(sid)) {
+            const items = checklistItems.get(sid)!
+            const checked = checkedItems.get(sid) || []
+            const nextItem = getNextItem(sid)
+
+            if (nextItem === null) {
+              // All items checked — send needle prompt
+              console.log("[ecc-hooks] all items checked — requesting needle")
+              try {
+                await ctx.session.prompt({ sessionID: sid, text: "ALL CHECKLIST ITEMS COMPLETE. Output the session needle now: " + needle })
               } catch {}
-              console.log("[ecc-hooks] goal checklist:", state.goals[sid].checklist)
-            } catch (e: any) { console.error("[ecc-hooks] goal gen failed:", e?.message) }
+            } else {
+              // Check if the last message indicates the current item is done
+              // We'll just send the next unchecked item
+              const idx = items.indexOf(nextItem) + 1
+              console.log("[ecc-hooks] sending item " + idx + "/" + items.length + ": " + nextItem)
+              try {
+                await ctx.session.prompt({ sessionID: sid, text: "WORK ON THIS ITEM ONLY (item " + idx + "/" + items.length + "): " + nextItem + "\n\nDo NOT work on other items. Complete this one, then say 'ITEM_DONE' when finished." })
+              } catch (e: any) { console.error("[ecc-hooks] prompt send failed:", e?.message) }
+            }
           }
         }
 
@@ -163,14 +222,6 @@ const setup = async (ctx: any): Promise<() => void> => {
             const out = execFileSync("/Users/albertstarfield/.nvm/versions/node/v22.23.0/bin/node", [ADAPTER_DIR + "/../targetAdaptation/ecc/scripts/hooks/session-start.js"], { cwd: ADAPTER_DIR + "/../targetAdaptation/ecc", encoding: "utf8", env: ENV, timeout: 10000 })
             console.log("[ecc-hooks] session-start:", (out || "").slice(0, 200))
           } catch (e: any) { console.error("[ecc-hooks] session-start failed:", e?.message) }
-        }
-
-        // Memory persistence: SessionEnd
-        if (typeof type === "string" && (type === "session.end" || type === "session.ended" || type === "sessionEnd")) {
-          try {
-            const out = execFileSync("/Users/albertstarfield/.nvm/versions/node/v22.23.0/bin/node", [ADAPTER_DIR + "/../targetAdaptation/ecc/scripts/hooks/session-end.js"], { cwd: ADAPTER_DIR + "/../targetAdaptation/ecc", encoding: "utf8", env: ENV, timeout: 10000 })
-            console.log("[ecc-hooks] session-end:", (out || "").slice(0, 200))
-          } catch (e: any) { console.error("[ecc-hooks] session-end failed:", e?.message) }
         }
 
         // Tool events
