@@ -34,10 +34,10 @@ errors, and edge cases at the Python→Ada boundary.
 
 ```bash
 # Install into project venv
-.venv/bin/pip install crosshair-tool
+.venv/bin/pip install crosshair-tool  # Requires Python 3.10-3.13
 
 # Verify installation
-.venv/bin/crosshair --version
+.venv/bin/crosshair  # or use global: /usr/local/EnvironmentalAwareReferentialUnit/.venv/bin/crosshair --version
 ```
 
 ## Usage
@@ -45,13 +45,13 @@ errors, and edge cases at the Python→Ada boundary.
 ### Check a Python module
 ```bash
 # Check all functions in a module
-.venv/bin/crosshair check run.py
+.venv/bin/crosshair  # or use global: /usr/local/EnvironmentalAwareReferentialUnit/.venv/bin/crosshair check run.py
 
 # Check with timeout
-.venv/bin/crosshair check run.py --per_path_timeout 30
+.venv/bin/crosshair  # or use global: /usr/local/EnvironmentalAwareReferentialUnit/.venv/bin/crosshair check run.py --per_path_timeout 30
 
 # Check specific function
-.venv/bin/crosshair check run.py --functions call_tool_id
+.venv/bin/crosshair  # or use global: /usr/local/EnvironmentalAwareReferentialUnit/.venv/bin/crosshair check run.py --functions call_tool_id
 ```
 
 ### Writing CrossHair-Compatible Contracts
@@ -75,10 +75,10 @@ def call_tool_id(name: str) -> int:
 ### CrossHair with pytest
 ```bash
 # Run CrossHair as part of test suite
-.venv/bin/crosshair check run.py --per_path_timeout 60
+.venv/bin/crosshair  # or use global: /usr/local/EnvironmentalAwareReferentialUnit/.venv/bin/crosshair check run.py --per_path_timeout 60
 
 # In CI
-.venv/bin/crosshair check run.py --per_path_timeout 120 --report_all
+.venv/bin/crosshair  # or use global: /usr/local/EnvironmentalAwareReferentialUnit/.venv/bin/crosshair check run.py --per_path_timeout 120 --report_all
 ```
 
 ## Integration with Ada/SPARK Verification
