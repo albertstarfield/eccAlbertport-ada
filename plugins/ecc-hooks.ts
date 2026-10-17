@@ -1,13 +1,8 @@
 import { tool, type Plugin } from "@opencode-ai/plugin"
 import * as fs from "fs"
 
-const ADAPTER_DIR = "/Users/albertstarfield/.config/opencode/ecc_adapter"
 const GOALS_DIR = (process.cwd() || ".") + "/.ecc"
 const CHECKLIST_FILE = GOALS_DIR + "/checklist.md"
-
-function ensureDir() {
-  if (!fs.existsSync(GOALS_DIR)) fs.mkdirSync(GOALS_DIR, { recursive: true })
-}
 
 function generateNeedle(): string {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -47,12 +42,6 @@ function getNextItem(sid: string): string | null {
   return null
 }
 
-function markChecked(sid: string, item: string) {
-  if (!checkedItems.has(sid)) checkedItems.set(sid, [])
-  const checked = checkedItems.get(sid)!
-  if (!checked.includes(item)) checked.push(item)
-}
-
 function allChecked(sid: string): boolean {
   const items = checklistItems.get(sid) || []
   const checked = checkedItems.get(sid) || []
@@ -72,13 +61,13 @@ function writeChecklistFile(sid: string) {
   try { fs.writeFileSync(CHECKLIST_FILE, md) } catch {}
 }
 
-const EccHooksPlugin: Plugin = async (ctx) => {
+const EccHooksPlugin: Plugin = async (_ctx) => {
   return {
     tool: {
       ecc_checklist_status: tool({
         description: "Show current ECC checklist progress",
         args: {},
-        async execute(args, context) {
+        async execute(_args, context) {
           const sid = context.sessionID
           const items = checklistItems.get(sid) || []
           const checked = checkedItems.get(sid) || []
