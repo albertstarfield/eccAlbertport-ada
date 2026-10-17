@@ -1,6 +1,14 @@
 export const id = "local/eccAlbertPort-adaSpark-Hybrid-FuckYouJSStatusquo-arch-autocontinue"
 
-const NEEDLE = "ECC_NEEDLE_COMPLETE"
+function generateNeedle(): string {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+  let result = ""
+  for (let i = 0; i < 8; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)]
+  }
+  return result
+}
+const NEEDLE = generateNeedle()
 const LAZY_PHRASES = [
   "remaining", "i'll do later", "close enough", "good enough",
   "partially", "for now", "to be continued", "in a follow-up",
@@ -117,6 +125,21 @@ const setup = async (ctx: any): Promise<() => void> => {
     console.error("[ecc-auto-continue] subscribe failed:", e)
   }
 
+  // Inject needle into session context so the agent knows what to output
+  try {
+    const sub2 = ctx.event.subscribe()
+    ;(async () => {
+      for await (const ev of sub2) {
+        const type = (ev as any)?.type || (ev as any)?.event || ""
+        if (type === "session.start" || type === "session.created") {
+          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
+          if (sid) {
+            try { await ctx.session.prompt({ sessionID: sid, text: "IMPORTANT: Your completion needle for this session is: " + NEEDLE + ". You MUST output this exact string as the very last thing when ALL work is truly complete. Without it, the system will auto-continue. Never say done without it." }) } catch {}
+          }
+        }
+      }
+    })().catch(() => {})
+  } catch {}
   console.log("[ecc-auto-continue] loaded (NEEDLE=" + NEEDLE + ")")
   return () => { console.log("[ecc-auto-continue] unloaded") }
 }
