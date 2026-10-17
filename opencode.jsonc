@@ -1,0 +1,138 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "core/openagent",
+  "subagent_depth": 2,
+  "experimental": {
+    "subagent_depth": 2
+  },
+  "agents": {
+    "title": {
+      "model": "opencode/deepseek-v4.1-flash"
+    }
+  },
+  "instructions": [
+    ".config/opencode/rules/webfetch-docs.md",
+    ".config/opencode/rules/ecc/common/coding-style.md",
+    ".config/opencode/rules/ecc/common/git-workflow.md",
+    ".config/opencode/rules/ecc/common/testing.md",
+    ".config/opencode/rules/ecc/common/performance.md",
+    ".config/opencode/rules/ecc/common/patterns.md",
+    ".config/opencode/rules/ecc/common/hooks.md",
+    ".config/opencode/rules/ecc/common/agents.md",
+    ".config/opencode/rules/ecc/common/security.md",
+    ".config/opencode/rules/ecc/common/development-workflow.md",
+    ".config/opencode/rules/ecc/common/code-review.md"
+  ],
+  "mcp": {
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+        "disabled": false
+      },
+      "github": {
+        "type": "local",
+        "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+        "environment": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+        },
+        "disabled": true
+      },
+      "firecrawl": {
+        "type": "local",
+        "command": ["npx", "-y", "firecrawl-mcp"],
+        "environment": {
+          "FIRECRAWL_API_KEY": "{env:FIRECRAWL_API_KEY}"
+        },
+        "disabled": true
+      }
+    }
+  },
+   "plugins": [
+    "opencode-wakatime",
+    {
+      "package": "@bybrawe/opencode-goal",
+      "options": { "verifierTimeoutMs": 180000, "verifierModel": "opencode-go/mimo-v2.6-flash" }
+    },
+    {
+      "package": "opencode-see-image@1.4.0",
+      "options": { "provider": "opencode-go", "model": "mimo-v2.6-flash" }
+    },
+    "@tarquinen/opencode-dcp@latest"
+  ],
+  "permission": {
+    "external_directory": {
+      "/**": "allow"
+    },
+    "bash": {
+      "*": "allow"
+    },
+    "edit": {
+      "*": "allow"
+    }
+  },
+  "tool_output": {
+    "max_lines": 200,
+    "max_bytes": 8192
+  },
+  "compaction": {
+    "auto": true,
+    "tail_turns": 15
+  },
+  "provider": {
+    "adelaide": {
+      "name": "automataAmaryllis",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:1234/v1"
+      },
+      "models": {
+        "qwen3.5-9b-claude-code": {
+          "name": "Amaryllis Automata"
+        }
+      }
+    },
+    "adelaideautomata": {
+      "name": "AdelaideAutomata",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:11420/v1"
+      },
+      "models": {
+        "Snowball-Enaga": {
+          "name": "Snowbal Enaga"
+        }
+      }
+    },
+    "amaryllisbaseintel": {
+      "name": "Amaryllis Base Intel",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://localhost:1234/v1",
+        "apiKey": "sk-omlx-cLVi2BcltclagmK5N2NX9WXQ"
+      },
+      "models": {
+        "Qwen3.8-34.7B": {
+          "name": "Qwen3.8-34.7B",
+          "limit": {
+            "context": 200000,
+            "output": 16384
+          }
+        }
+      }
+    },
+    "opencode-go": {
+      "name": "OpenCode Go",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://opencode.ai/zen/go/v1"
+      },
+      "models": {
+        "mimo-v2.6-flash": {
+          "name": "MiMo V2.6 Flash"
+        }
+      }
+    }
+  },
+  "shell": "bash"
+}
