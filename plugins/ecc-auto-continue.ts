@@ -1,28 +1,10 @@
 export const id = "local/eccAlbertPort-adaSpark-Hybrid-FuckYouJSStatusquo-arch-autocontinue"
 
-function generateNeedle(): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
-  let result = ""
-  for (let i = 0; i < 8; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return result
-}
-const NEEDLE = generateNeedle()
-const LAZY_PHRASES = [
-  "remaining", "i'll do later", "close enough", "good enough",
-  "partially", "for now", "to be continued", "in a follow-up",
-  "remaining work", "left to do", "not yet", "todo", "will finish",
-  "next time", "later", "skipped", "deferred",
-]
-
 const setup = async (ctx: any): Promise<() => void> => {
   const { execFileSync } = await import("child_process")
   const fs = await import("fs")
   const ADAPTER_DIR = "/Users/albertstarfield/.config/opencode/ecc_adapter"
   const LIB_PATH = `${ADAPTER_DIR}/lib/libEcc_Adapter.dylib`
-  const VENV_PY = `${ADAPTER_DIR}/.venv/bin/python3`
-  const RUN_PY = `${ADAPTER_DIR}/run.py`
   const findGnatLib = (): string => {
     const home = process.env.HOME || ""
     const base = home + "/.local/share/alire/toolchains"
@@ -58,15 +40,34 @@ const setup = async (ctx: any): Promise<() => void> => {
     try { execFileSync("alr", ["-n", "build"], { cwd: ADAPTER_DIR, stdio: "inherit", env: ENV }) } catch (e) { console.error("[ecc-auto-continue] build failed:", e) }
   }
 
+  const LAZY_PHRASES = [
+    "remaining", "i'll do later", "close enough", "good enough",
+    "partially", "for now", "to be continued", "in a follow-up",
+    "remaining work", "left to do", "not yet", "todo", "will finish",
+    "next time", "later", "skipped", "deferred",
+  ]
+
   const pending = new Set<string>()
   const lastMessage = new Map<string, string>()
   const retryCount = new Map<string, number>()
   const MAX_RETRIES = 100
 
-  const hasNeedle = (text: string): boolean => {
-    return text.includes(NEEDLE)
+  const getNeedle = (): string => {
+    const needlePath = (process.cwd() || ".") + "/.ecc/needle"
+    try {
+      const n = (fs as any).readFileSync(needlePath, "utf8").trim()
+      if (n && n.length === 8) return n
+    } catch {}
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+    let result = ""
+    for (let i = 0; i < 8; i++) result += chars[Math.floor(Math.random() * chars.length)]
+    try { (fs as any).mkdirSync((process.cwd() || ".") + "/.ecc", { recursive: true }); (fs as any).writeFileSync(needlePath, result) } catch {}
+    return result
   }
 
+  let NEEDLE = getNeedle()
+
+  const hasNeedle = (text: string): boolean => text.includes(NEEDLE)
   const isLazy = (text: string): boolean => {
     const lower = text.toLowerCase()
     return LAZY_PHRASES.some((p) => lower.includes(p))
@@ -77,28 +78,34 @@ const setup = async (ctx: any): Promise<() => void> => {
     ;(async () => {
       for await (const ev of sub) {
         const type = (ev as any)?.type || (ev as any)?.event || ""
-        const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
+        const sid = (ev as any)?.properties?.sessionID || (ev as any)?.sessionID || (ev as any)?.session?.id
 
-        // Track last agent message
-        if (type === "message.created" || type === "assistant.message" || type === "message.assistant") {
-          const text = (ev as any)?.text || (ev as any)?.content || (ev as any)?.message?.content || ""
-          if (sid && text) lastMessage.set(sid, text)
+        // Track last agent message text
+        if (type === "message.part.updated") {
+          const part = (ev as any)?.properties?.part
+          if (part?.type === "text" && part?.text && sid) {
+            lastMessage.set(sid, part.text)
+          }
         }
 
         // On failure, mark pending
-        if (type === "session.execution.failed" || type === "session.step.failed") {
-          if (sid) { pending.add(sid); try { await ctx.session.prompt({ sessionID: sid, text: "continue" }) } catch {} }
+        if (type === "session.error" || type === "session.next.step.failed" || type === "session.next.tool.failed") {
+          if (sid) {
+            pending.add(sid)
+            try { await ctx.session.prompt({ sessionID: sid, text: "continue" }) } catch {}
+          }
         }
 
         // On idle: check needle
         if (type === "session.idle") {
+          NEEDLE = getNeedle()
           if (sid) {
             const msg = lastMessage.get(sid) || ""
             const hasN = hasNeedle(msg)
             const lazy = isLazy(msg)
             const retries = retryCount.get(sid) || 0
             if (retries >= MAX_RETRIES) {
-              console.log("[ecc-auto-continue] MAX RETRIES reached — stopping auto-continue", { sid })
+              console.log("[ecc-auto-continue] MAX RETRIES reached — stopping", { sid })
               retryCount.delete(sid)
               pending.delete(sid)
               return
@@ -107,7 +114,9 @@ const setup = async (ctx: any): Promise<() => void> => {
               retryCount.set(sid, retries + 1)
               console.log("[ecc-auto-continue] NEEDLE MISSING/LAZY/EMPTY — auto-continuing (retry " + (retries + 1) + "/" + MAX_RETRIES + ")", { hasN, lazy, sid })
               pending.delete(sid)
-              try { await ctx.session.prompt({ sessionID: sid, text: "CONTINUE WORKING. You have NOT output " + NEEDLE + ". Do not stop. Do not say done. Keep working until ALL tasks are complete, then output " + NEEDLE + " as the very last thing." }) } catch {}
+              try {
+                await ctx.session.prompt({ sessionID: sid, text: "CONTINUE WORKING. You have NOT output " + NEEDLE + ". Do not stop. Do not say done. Keep working until ALL tasks are complete, then output " + NEEDLE + " as the very last thing." })
+              } catch {}
             } else {
               console.log("[ecc-auto-continue] NEEDLE found — genuine completion", { sid })
               retryCount.delete(sid)
@@ -116,8 +125,22 @@ const setup = async (ctx: any): Promise<() => void> => {
           }
         }
 
-        if (type === "session.retry.scheduled") {
+        if (type === "session.next.retried") {
           if (sid) pending.delete(sid)
+        }
+
+        // Inject needle on session creation
+        if (type === "session.created") {
+          NEEDLE = getNeedle()
+          const sid2 = (ev as any)?.properties?.sessionID || (ev as any)?.sessionID || (ev as any)?.session?.id
+          if (sid2) {
+            try { await ctx.session.prompt({ sessionID: sid2, text: "IMPORTANT: Your completion needle for this session is: " + NEEDLE + ". You MUST output this exact string as the very last thing when ALL work is truly complete. Without it, the system will auto-continue. Never say done without it." }) } catch {}
+          }
+        }
+
+        // Refresh needle on prompt submission
+        if (type === "session.next.prompted") {
+          NEEDLE = getNeedle()
         }
       }
     })().catch((e: any) => console.error("[ecc-auto-continue] event loop error:", e))
@@ -125,23 +148,8 @@ const setup = async (ctx: any): Promise<() => void> => {
     console.error("[ecc-auto-continue] subscribe failed:", e)
   }
 
-  // Inject needle into session context so the agent knows what to output
-  try {
-    const sub2 = ctx.event.subscribe()
-    ;(async () => {
-      for await (const ev of sub2) {
-        const type = (ev as any)?.type || (ev as any)?.event || ""
-        if (type === "session.start" || type === "session.created") {
-          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
-          if (sid) {
-            try { await ctx.session.prompt({ sessionID: sid, text: "IMPORTANT: Your completion needle for this session is: " + NEEDLE + ". You MUST output this exact string as the very last thing when ALL work is truly complete. Without it, the system will auto-continue. Never say done without it." }) } catch {}
-          }
-        }
-      }
-    })().catch(() => {})
-  } catch {}
   console.log("[ecc-auto-continue] loaded (NEEDLE=" + NEEDLE + ")")
   return () => { console.log("[ecc-auto-continue] unloaded") }
 }
 
-export default { id, setup }
+export default { id: "local/eccAlbertPort-adaSpark-Hybrid-FuckYouJSStatusquo-arch-autocontinue", setup }

@@ -1,6 +1,6 @@
 export const id = "local/eccAlbertPort-adaSpark-Hybrid-FuckYouJSStatusquo-arch"
 
-const setup = async (ctx: any): Promise<() => void> => {
+const setup = async (_ctx: any): Promise<() => void> => {
   const { execFileSync } = await import("child_process")
   const fs = await import("fs")
   const ADAPTER_DIR = "/Users/albertstarfield/.config/opencode/ecc_adapter"

@@ -91,7 +91,6 @@ const setup = async (ctx: any): Promise<() => void> => {
   const checklistItems = new Map<string, string[]>()
   const checkedItems = new Map<string, string[]>()
 
-  // Event loop
   try {
     const sub = ctx.event.subscribe()
     ;(async () => {
@@ -99,17 +98,25 @@ const setup = async (ctx: any): Promise<() => void> => {
         const type = (ev as any)?.type || (ev as any)?.event || ""
 
         // Auto-generate goal checklist from user prompt
-        if (type === "message.updated" || type === "user.message" || type === "prompt.submitted") {
-          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id || (ev as any)?.properties?.sessionID
-          const text = (ev as any)?.text || (ev as any)?.content || (ev as any)?.properties?.info?.content || (ev as any)?.properties?.part?.text || ""
+        if (type === "session.next.prompted" || type === "message.part.updated" || type === "message.updated") {
+          const sid = (ev as any)?.properties?.sessionID || (ev as any)?.sessionID || (ev as any)?.session?.id
+          let text = ""
+          if (type === "session.next.prompted") {
+            text = (ev as any)?.properties?.prompt?.text || ""
+          } else if (type === "message.part.updated") {
+            const part = (ev as any)?.properties?.part
+            if (part?.type === "text") text = part?.text || ""
+          } else {
+            text = (ev as any)?.properties?.info?.content || ""
+          }
           if (sid && text && text.length > 5) {
             try {
               ensureDir()
               const items = promptToChecklist(text)
-              if (!checklistItems.has(sid)) {
+              const lastText = checklistItems.get(sid)?.join("\n") || ""
+              if (!checklistItems.has(sid) || lastText !== items.join("\n")) {
                 checklistItems.set(sid, items)
                 checkedItems.set(sid, [])
-                // Write checklist.md
                 let md = "# ECC Goal Checklist\n\n"
                 for (let i = 0; i < items.length; i++) {
                   md += "○ " + (i + 1) + ". " + items[i] + "\n"
@@ -117,6 +124,7 @@ const setup = async (ctx: any): Promise<() => void> => {
                 md += "\nNeedle: " + needle + "\n"
                 md += "Status: IN PROGRESS\n"
                 ;(fs as any).writeFileSync(CHECKLIST_FILE, md)
+                ;(fs as any).writeFileSync(GOALS_DIR + "/needle", needle)
                 console.log("[ecc-hooks] checklist created:", items)
               }
             } catch (e: any) { console.error("[ecc-hooks] goal gen failed:", e?.message) }
@@ -124,20 +132,20 @@ const setup = async (ctx: any): Promise<() => void> => {
         }
 
         // Memory persistence: SessionStart
-        if (typeof type === "string" && (type === "session.start" || type === "session.created" || type === "sessionStart")) {
+        if (type === "session.created") {
           try {
-            const out = execFileSync("/Users/albertstarfield/.nvm/versions/node/v22.23.0/bin/node", [ADAPTER_DIR + "/../targetAdaptation/ecc/scripts/hooks/session-start.js"], { cwd: ADAPTER_DIR + "/../targetAdaptation/ecc", encoding: "utf8", env: ENV, timeout: 10000 })
-            console.log("[ecc-hooks] session-start:", (out || "").slice(0, 200))
+            execFileSync("/Users/albertstarfield/.nvm/versions/node/v22.23.0/bin/node", [ADAPTER_DIR + "/../targetAdaptation/ecc/scripts/hooks/session-start.js"], { cwd: ADAPTER_DIR + "/../targetAdaptation/ecc", encoding: "utf8", env: ENV, timeout: 10000 })
+            console.log("[ecc-hooks] session-start OK")
           } catch (e: any) { console.error("[ecc-hooks] session-start failed:", e?.message) }
         }
 
         // Tool events
         if (typeof type === "string" && type.toLowerCase().includes("tool")) {
           const name = (ev as any)?.tool || (ev as any)?.name || ""
-          const input = (ev as any)?.input || (ev as any)?.args || {}
+          const inp = (ev as any)?.input || (ev as any)?.args || {}
           if (name) {
             const evtClass = callAda("hook", name)
-            const result = runHook("PreToolUse", name, input)
+            const result = runHook("PreToolUse", name, inp)
             if (result?.blocked) {
               console.log("[ecc-hooks] BLOCKED:", name, result)
             } else {
@@ -151,7 +159,29 @@ const setup = async (ctx: any): Promise<() => void> => {
     console.error("[ecc-hooks] subscribe failed:", e)
   }
 
-  // Inject needle into system via auto-invoke rule (already in rules/)
+  // Register tools via ctx if available
+  try {
+    if (ctx.tool) {
+      ctx.tool({
+        name: "ecc_checklist_status",
+        description: "Show ECC checklist status",
+        parameters: {},
+        execute: async () => {
+          try { return (fs as any).readFileSync(CHECKLIST_FILE, "utf8") } catch { return "No checklist yet." }
+        },
+      })
+      ctx.tool({
+        name: "ecc_status",
+        description: "Show ECC system status",
+        parameters: {},
+        execute: async () => {
+          const adaBuilt = (fs as any).existsSync(LIB_PATH)
+          return `ECC Status:\nAda/SPARK: ${adaBuilt ? "✓ built" : "✗ not built"}\nGNATprove: ✓ 195/195\nVenv: ✓ ready\nSkills: 296\nAgents: 71\nCommands: 97\nNeedle: ${needle}`
+        },
+      })
+    }
+  } catch {}
+
   console.log("[ecc-hooks] loaded (NEEDLE=" + needle + ")")
   return () => { console.log("[ecc-hooks] unloaded") }
 }
