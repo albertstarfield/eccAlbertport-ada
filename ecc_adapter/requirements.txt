@@ -1,0 +1,2 @@
+# No third-party Python dependencies: run.py uses only the standard library.
+# The venv exists to satisfy the venv mandate and provide an isolated interpreter.

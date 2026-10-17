@@ -1,0 +1,9 @@
+name = "ecc_adapter"
+description = "ECC -> OpenCode adapter: Ada/SPARK core with a Python FFI bridge."
+version = "0.1.0-dev"
+
+authors = ["Albert Starfield Wahyu Suryo Sam"]
+maintainers = ["Albert Starfield Wahyu Suryo Sam <albertstarfield2001@gmail.com>"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = []
