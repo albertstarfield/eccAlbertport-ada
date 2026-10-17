@@ -2,6 +2,15 @@
 name: competitive-platform-analysis
 description: Use when scoping a competitive landscape — identifying, categorising, and score-filtering a competitor set before any benchmarking begins. Decides who counts as a competitor, which tier they belong to, and which sources to mine. First step in the three-skill competitive pipeline; precedes benchmark-methodology.
 ---
+> **OpenCode Paradigm (Ada/SPARK-First)**: This project uses Ada/SPARK as the primary
+> implementation language.  All business logic, classification, gating, and state management
+> MUST be in Ada/SPARK (SPARK_Mode => On).  Python is FFI-only (wrapper).  JavaScript is
+> BANNED (TypeScript only for OpenCode plugin host API).  The frontend/UI remains identical
+> in appearance but is driven by Ada/SPARK backend logic via FFI.  Validation: `gnatprove --level=4`,
+> `pyrefly check .`, `ruff check .`, `jslint`.  Approval gates required before execution.
+> Context must be loaded before any code changes.  See `ecc_adapter/` for the verified core.
+
+
 
 # Competitive Platform Analysis
 

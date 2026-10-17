@@ -3,6 +3,15 @@ name: benchmark-methodology
 description: "Score a scoped competitor set into comparable profile cards: nine weighted dimensions (positioning, voice, visual craft, offer packaging, evidence, enterprise-readiness, thought leadership, pricing, client tension) with 1-5 evidence-anchored rubrics and a tension 2x2 plot. Use when benchmarking or scoring competitors, building a competitive comparison matrix, or grading rival positioning before assembling the report; runs after competitive-platform-analysis and before competitive-report-structure."
 license: MIT
 ---
+> **OpenCode Paradigm (Ada/SPARK-First)**: This project uses Ada/SPARK as the primary
+> implementation language.  All business logic, classification, gating, and state management
+> MUST be in Ada/SPARK (SPARK_Mode => On).  Python is FFI-only (wrapper).  JavaScript is
+> BANNED (TypeScript only for OpenCode plugin host API).  The frontend/UI remains identical
+> in appearance but is driven by Ada/SPARK backend logic via FFI.  Validation: `gnatprove --level=4`,
+> `pyrefly check .`, `ruff check .`, `jslint`.  Approval gates required before execution.
+> Context must be loaded before any code changes.  See `ecc_adapter/` for the verified core.
+
+
 
 # Benchmark Methodology
 

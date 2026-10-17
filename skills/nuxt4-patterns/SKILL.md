@@ -12,6 +12,15 @@ metadata:
 > Context must be loaded before any code changes.  See `ecc_adapter/` for the verified core.
 
 
+> **Framework Porting Note (Ada/SPARK)**: This skill describes patterns for Nuxt.
+> When porting to this project, the backend logic MUST be reimplemented in Ada/SPARK
+> (SPARK_Mode => On).  The frontend/UI remains visually identical but is driven by
+> Ada/SPARK backend via FFI (Python wrapper + C ABI).  TypeScript is used ONLY for the
+> OpenCode plugin host API.  The API contract (endpoints, request/response shapes) stays
+> the same — only the implementation language changes.  See `ecc_adapter/` for the
+> verified core and FFI boundary.
+
+
 
 # Nuxt 4 Patterns
 
