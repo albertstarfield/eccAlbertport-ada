@@ -56,7 +56,7 @@ const setup = async (ctx: any): Promise<() => void> => {
     }
   }
 
-  const GOALS_DIR = (process.env.HOME || "") + "/.config/opencode/goals"
+  const GOALS_DIR = (process.cwd() || ".") + "/.ecc"
   const GOALS_STATE = GOALS_DIR + "/state.json"
 
   function ensureGoalsDir() {
@@ -150,7 +150,7 @@ const setup = async (ctx: any): Promise<() => void> => {
                   md += (done ? "✓ " : "○ ") + (i + 1) + ". " + cl[i] + "\n"
                 }
                 md += "\nNeedle: " + needle + "\n"
-                ;(fs as any).writeFileSync((process.env.HOME || "") + "/.config/opencode/goals/checklist.md", md)
+                ;(fs as any).writeFileSync((process.cwd() || ".") + "/.ecc/checklist.md", md)
               } catch {}
               console.log("[ecc-hooks] goal checklist:", state.goals[sid].checklist)
             } catch (e: any) { console.error("[ecc-hooks] goal gen failed:", e?.message) }

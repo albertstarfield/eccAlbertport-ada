@@ -48,7 +48,7 @@ finished everything, keep working. The needle is the ONLY valid completion signa
 When a goal is auto-generated from a user prompt, it is broken into a CHECKLIST
 of individual items. The agent MUST work through them like a for-loop:
 
-1. Read the checklist from `~/.config/opencode/goals/checklist.md`
+1. Read the checklist from `./.ecc/checklist.md`
 2. Find the FIRST unchecked item (○)
 3. Work on ONLY that item
 4. Mark it checked (✓) in the checklist file
