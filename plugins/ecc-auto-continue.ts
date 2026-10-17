@@ -61,7 +61,7 @@ const setup = async (ctx: any): Promise<() => void> => {
   const pending = new Set<string>()
   const lastMessage = new Map<string, string>()
   const retryCount = new Map<string, number>()
-  const MAX_RETRIES = 10
+  const MAX_RETRIES = 100
 
   const hasNeedle = (text: string): boolean => {
     return text.includes(NEEDLE)
