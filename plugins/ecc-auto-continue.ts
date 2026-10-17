@@ -52,6 +52,8 @@ const setup = async (ctx: any): Promise<() => void> => {
 
   const pending = new Set<string>()
   const lastMessage = new Map<string, string>()
+  const retryCount = new Map<string, number>()
+  const MAX_RETRIES = 10
 
   const hasNeedle = (text: string): boolean => {
     return text.includes(NEEDLE)
@@ -86,12 +88,21 @@ const setup = async (ctx: any): Promise<() => void> => {
             const msg = lastMessage.get(sid) || ""
             const hasN = hasNeedle(msg)
             const lazy = isLazy(msg)
-            if (!hasN || lazy) {
-              console.log("[ecc-auto-continue] NEEDLE MISSING or LAZY detected — auto-continuing", { hasN, lazy, sid })
+            const retries = retryCount.get(sid) || 0
+            if (retries >= MAX_RETRIES) {
+              console.log("[ecc-auto-continue] MAX RETRIES reached — stopping auto-continue", { sid })
+              retryCount.delete(sid)
               pending.delete(sid)
-              try { await ctx.session.prompt({ sessionID: sid, text: "continue — you must output " + NEEDLE + " when truly complete, or keep working" }) } catch {}
+              return
+            }
+            if (!hasN || lazy || msg.trim().length < 10) {
+              retryCount.set(sid, retries + 1)
+              console.log("[ecc-auto-continue] NEEDLE MISSING/LAZY/EMPTY — auto-continuing (retry " + (retries + 1) + "/" + MAX_RETRIES + ")", { hasN, lazy, sid })
+              pending.delete(sid)
+              try { await ctx.session.prompt({ sessionID: sid, text: "CONTINUE WORKING. You have NOT output " + NEEDLE + ". Do not stop. Do not say done. Keep working until ALL tasks are complete, then output " + NEEDLE + " as the very last thing." }) } catch {}
             } else {
               console.log("[ecc-auto-continue] NEEDLE found — genuine completion", { sid })
+              retryCount.delete(sid)
               pending.delete(sid)
             }
           }
