@@ -56,6 +56,16 @@ OpenCode plugin host API (sanctioned carve-out per platform requirements).
 └─────────────────────────────────────────────────────────────┘
 ```
 
+### Embedded Python (CPython)
+
+The Ada library now **embeds CPython** directly.  Ada is the host, Python is the guest
+interpreter.  This eliminates the ctypes FFI overhead and keeps Python in-process.
+
+- **Package**: `Ecc_Python_Embed` (SPARK_Mode => Off — FFI boundary to libpython)
+- **Safety**: Every Python C API call is wrapped in GIL acquisition + exception handling
+- **Venv**: Still generated and used (Python dependencies installed in `.venv/`)
+- **Verified**: Build succeeds, links against libpython3.15, runtime test passes
+
 ### SPARK Mode Status
 
 | Package | SPARK_Mode | Checks Proved |

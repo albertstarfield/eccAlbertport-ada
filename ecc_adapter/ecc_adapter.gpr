@@ -30,4 +30,9 @@ project Ecc_Adapter is
       for Artifacts (".") use ("share");
    end Install;
 
+   for Library_Options use
+     ("-L/opt/homebrew/opt/python@3.15/Frameworks/Python.framework/Versions/3.15/lib",
+      "-lpython3.15",
+      "-framework", "CoreFoundation");
+
 end Ecc_Adapter;
