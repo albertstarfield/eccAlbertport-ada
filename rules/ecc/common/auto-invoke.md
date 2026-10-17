@@ -31,12 +31,14 @@ automatically augments the agent with the right tools for the job.
 
 The system uses a "Needle in the haystack" mechanism to detect genuine completion:
 
-- **NEEDLE**: `ECC_NEEDLE_COMPLETE`
-- The agent MUST output this exact string when ALL work is truly finished
-- If the agent stops without outputting the needle, the system auto-continues
+- **NEEDLE**: A random 8-character string (e.g., "a9g30hf") generated per session
+- The needle is injected into your context at session start
+- You MUST output this exact string as the very last thing when ALL work is truly finished
+- If you stop without outputting the needle, the system auto-continues
 - Lazy phrases ("remaining", "I'll do later", "close enough", "good enough",
   "partially", "for now", "to be continued", "skipped", "deferred", etc.)
   trigger auto-continue even if present
+- The needle changes every session (RNG) — you cannot predict or fake it
 
-**Rule**: Never say "done" without `ECC_NEEDLE_COMPLETE`. If you haven't
+**Rule**: Never say "done" without the session needle. If you haven't
 finished everything, keep working. The needle is the ONLY valid completion signal.
