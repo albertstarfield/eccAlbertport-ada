@@ -2,7 +2,6 @@ import { Plugin } from "@opencode/plugin/tui"
 import type { Context } from "@opencode/plugin/tui"
 import { createMemo, createSignal, onCleanup } from "solid-js"
 import * as fs from "fs"
-import * as path from "path"
 import { execFileSync } from "child_process"
 
 const GOALS_DIR = (process.env.HOME || "") + "/.config/opencode/goals"
@@ -32,7 +31,7 @@ function generateGoal(sessionID: string, objective: string) {
   const state = loadState()
   if (!state.goals[sessionID]) {
     state.goals[sessionID] = {
-      id: crypto.randomUUID(),
+      id: "goal-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
       sessionID,
       objective,
       status: "active",
