@@ -3,6 +3,14 @@ name: agent-self-evaluation
 description: Use after completing any non-trivial task. The agent self-rates its output on 5 axes — accuracy, completeness, clarity, actionability, conciseness — with concrete evidence per criterion. Produces a structured 1-5 scorecard with specific improvement suggestions.
 origin: ECC
 ---
+> **OpenCode Paradigm (Ada/SPARK-First)**: This project uses Ada/SPARK as the primary
+> implementation language.  All business logic, classification, gating, and state management
+> MUST be in Ada/SPARK (SPARK_Mode => On).  Python is FFI-only (wrapper).  JavaScript is
+> BANNED (TypeScript only for OpenCode plugin host API).  Validation: `gnatprove --level=4`,
+> `pyrefly check .`, `ruff check .`, `jslint`.  Approval gates required before execution.
+> Context must be loaded before any code changes.  See `ecc_adapter/` for the verified core.
+
+
 
 # Agent Self-Evaluation
 

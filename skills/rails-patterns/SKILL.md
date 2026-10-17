@@ -3,6 +3,14 @@ name: rails-patterns
 description: Ruby on Rails framework patterns for Rails 7.1+ and 8.x apps. Covers the directory contract, skinny controllers with service objects, form objects, query objects, idiomatic ActiveRecord, background jobs, ViewComponent, Hotwire, and the Rails 8 Solid stack. Use when building or reviewing Rails apps, controllers, models, services, jobs, or views.
 origin: community
 ---
+> **OpenCode Paradigm (Ada/SPARK-First)**: This project uses Ada/SPARK as the primary
+> implementation language.  All business logic, classification, gating, and state management
+> MUST be in Ada/SPARK (SPARK_Mode => On).  Python is FFI-only (wrapper).  JavaScript is
+> BANNED (TypeScript only for OpenCode plugin host API).  Validation: `gnatprove --level=4`,
+> `pyrefly check .`, `ruff check .`, `jslint`.  Approval gates required before execution.
+> Context must be loaded before any code changes.  See `ecc_adapter/` for the verified core.
+
+
 
 # Rails Patterns
 

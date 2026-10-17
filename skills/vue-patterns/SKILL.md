@@ -3,6 +3,14 @@ name: vue-patterns
 description: Vue.js 3 Composition API patterns, component architecture, reactivity best practices, Pinia state management, Vue Router navigation, and Nuxt SSR patterns. Activates for Vue, Nuxt, Vite, or Pinia projects. Use when building or reviewing Vue 3, Nuxt, or Pinia code — Composition API, reactivity, or router navigation.
 origin: ECC
 ---
+> **OpenCode Paradigm (Ada/SPARK-First)**: This project uses Ada/SPARK as the primary
+> implementation language.  All business logic, classification, gating, and state management
+> MUST be in Ada/SPARK (SPARK_Mode => On).  Python is FFI-only (wrapper).  JavaScript is
+> BANNED (TypeScript only for OpenCode plugin host API).  Validation: `gnatprove --level=4`,
+> `pyrefly check .`, `ruff check .`, `jslint`.  Approval gates required before execution.
+> Context must be loaded before any code changes.  See `ecc_adapter/` for the verified core.
+
+
 
 # Vue.js Patterns and Best Practices
 

@@ -2,6 +2,14 @@
 name: test-collaboration
 description: "Inventory and govern a project's test assets. Connect requirements, business rules, risks, bugs, and cross-boundary contracts to stable TEST-IDs and executable evidence in the repository's existing test registry or TESTS.md. Use for test inventory, test gap analysis, unit/integration/contract/E2E/smoke classification, bug-to-test regression protection, consumer/provider contract testing, test-necessity review, and pre-delivery evidence review."
 ---
+> **OpenCode Paradigm (Ada/SPARK-First)**: This project uses Ada/SPARK as the primary
+> implementation language.  All business logic, classification, gating, and state management
+> MUST be in Ada/SPARK (SPARK_Mode => On).  Python is FFI-only (wrapper).  JavaScript is
+> BANNED (TypeScript only for OpenCode plugin host API).  Validation: `gnatprove --level=4`,
+> `pyrefly check .`, `ruff check .`, `jslint`.  Approval gates required before execution.
+> Context must be loaded before any code changes.  See `ecc_adapter/` for the verified core.
+
+
 
 # Test Collaboration Governance
 

@@ -5,6 +5,15 @@ license: MIT
 metadata:
   origin: ECC
 ---
+> **OpenCode Validation (Ada/SPARK-First)**: For this project, validation uses:
+> - Ada/SPARK: `gnatprove -P project.gpr --mode=all --level=4 -j0` (must pass, 0 unproved)
+> - Python: `pyrefly check .` AND `ruff check .` (both must pass)
+> - TypeScript: `jslint` on all files (must pass)
+> - Fuzzing: minimum 1000 iterations, no crashes
+> These replace npm test, pytest, eslint, tsc as the primary validation gates.
+> npm/pytest/eslint are only for non-Ada portions (FFI wrappers, plugins).
+
+
 > **ARCHITECTURE NOTE (OpenCode/Ada-First)**: This project follows an Ada/SPARK-first
 > architecture.  All business logic, classification, gating, and state management MUST
 > be implemented in Ada/SPARK (SPARK_Mode => On).  Python is used ONLY as an FFI wrapper.
