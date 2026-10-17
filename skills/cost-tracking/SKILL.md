@@ -13,12 +13,12 @@ that ECC's `stop:cost-tracker` hook writes.
 ## Where the data lives
 
 The tracker appends one JSON object per session-stop to
-`~/.claude/metrics/costs.jsonl`. Each row is a **cumulative snapshot for that
+`~/.config/opencode/metrics/costs.jsonl`. Each row is a **cumulative snapshot for that
 session**, so to total spend you take the **latest row per `session_id`** and
 sum across sessions — summing every row multiply-counts.
 
 ECC also maintains internal per-session files under
-`~/.claude/metrics/cost-snapshots/` so runtime hooks can read the current
+`~/.config/opencode/metrics/cost-snapshots/` so runtime hooks can read the current
 session total without rescanning all history. Treat those files as a
 rebuildable cache; each snapshot stores a byte cursor so only newly appended
 rows are scanned. Stable reads are O(1), while updates are O(new bytes). Stale

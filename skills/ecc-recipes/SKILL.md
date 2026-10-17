@@ -47,11 +47,11 @@ Resolve the commands directory (first that exists), then list names:
 
 ```bash
 for D in \
-  "$HOME"/.claude/plugins/marketplaces/ecc/commands \
-  "$HOME"/.claude/plugins/cache/ecc/ecc/*/commands \
+  "$HOME"/.config/opencode/plugins/marketplaces/ecc/commands \
+  "$HOME"/.config/opencode/plugins/cache/ecc/ecc/*/commands \
   ./commands \
-  ./.claude/commands \
-  "$HOME"/.claude/commands; do
+  ./.config/opencode/commands \
+  "$HOME"/.config/opencode/commands; do
   [ -d "$D" ] && CMD_DIR="$D" && break
 done
 [ -z "${CMD_DIR:-}" ] && { echo "No ECC commands directory found."; return 1; }

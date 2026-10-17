@@ -35,7 +35,7 @@ Inspect only the files and settings needed to answer the question well:
 
 1. Repo surface
    - `package.json`, lockfiles, language markers, framework config, `README.md`
-   - `.mcp.json`, `.lsp.json`, `.claude/settings*.json`, `.codex/*`
+   - `.mcp.json`, `.lsp.json`, `.config/opencode/settings*.json`, `.codex/*`
    - `AGENTS.md`, `CLAUDE.md`, install manifests, hook configs
 2. Environment surface
    - `.env*` files in the active repo and obvious adjacent ECC workspaces

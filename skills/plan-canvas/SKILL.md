@@ -18,7 +18,7 @@ ECC-native around the `/plan` confirmation gate, with zero dependencies.
 
 ## When to Use
 
-- You just wrote a plan artifact (`.claude/plans/*.plan.md` from `/plan`) and
+- You just wrote a plan artifact (`.config/opencode/plans/*.plan.md` from `/plan`) and
   need the CONFIRM/approve decision — the canvas verdict replaces a typed
   "yes/proceed".
 - The user should *point at* what to change: reviewing designs, comparisons,
@@ -45,11 +45,11 @@ Codex — or just run the `ecc-plan-canvas` commands directly.
 
 ```bash
 # 1. Open the artifact in the user's browser (returns immediately)
-ecc-plan-canvas open .claude/plans/feature.plan.md
+ecc-plan-canvas open .config/opencode/plans/feature.plan.md
 
 # 2. Block until the human responds. Leave running; re-run if interrupted:
 #    queued feedback is never lost.
-ecc-plan-canvas await .claude/plans/feature.plan.md
+ecc-plan-canvas await .config/opencode/plans/feature.plan.md
 ```
 
 ### Stay listening, or the human talks to an empty chair
@@ -157,18 +157,18 @@ mirror at `ECC_PLAN_CANVAS_MERMAID_URL` for air-gapped use.
   referenced by relative path.
 - The server is loopback-only and exits after 30 idle minutes
   (`ECC_PLAN_CANVAS_IDLE_MS`); `stop` shuts it down explicitly. State lives
-  in `~/.claude/plan-canvas/` (`ECC_PLAN_CANVAS_STATE_DIR`).
+  in `~/.config/opencode/plan-canvas/` (`ECC_PLAN_CANVAS_STATE_DIR`).
 
 ## Examples
 
 **Plan approval flow** — `/plan` writes
-`.claude/plans/notifications.plan.md` and must WAIT for confirmation:
+`.config/opencode/plans/notifications.plan.md` and must WAIT for confirmation:
 
 ```bash
-ecc-plan-canvas open .claude/plans/notifications.plan.md
-ecc-plan-canvas await .claude/plans/notifications.plan.md
+ecc-plan-canvas open .config/opencode/plans/notifications.plan.md
+ecc-plan-canvas await .config/opencode/plans/notifications.plan.md
 # → {"status":"feedback","items":[{"kind":"verdict","verdict":"approve"}]}
-ecc-plan-canvas end .claude/plans/notifications.plan.md
+ecc-plan-canvas end .config/opencode/plans/notifications.plan.md
 # plan is confirmed — begin implementation
 ```
 

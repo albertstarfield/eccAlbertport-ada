@@ -3,11 +3,11 @@
 # Usage: scan.sh [CWD_SKILLS_DIR]
 # Output: JSON to stdout
 #
-# When CWD_SKILLS_DIR is omitted, defaults to $PWD/.claude/skills so the
+# When CWD_SKILLS_DIR is omitted, defaults to $PWD/.config/opencode/skills so the
 # script always picks up project-level skills without relying on the caller.
 #
 # Environment:
-#   SKILL_STOCKTAKE_GLOBAL_DIR   Override ~/.claude/skills (for testing only;
+#   SKILL_STOCKTAKE_GLOBAL_DIR   Override ~/.config/opencode/skills (for testing only;
 #                                do not set in production — intended for bats tests)
 #   SKILL_STOCKTAKE_PROJECT_DIR  Override project dir detection (for testing only)
 
@@ -34,16 +34,16 @@ sort_nul_file() {
   mv "$sorted_file" "$input_file"
 }
 
-GLOBAL_DIR="${SKILL_STOCKTAKE_GLOBAL_DIR:-$HOME/.claude/skills}"
-CWD_SKILLS_DIR="${SKILL_STOCKTAKE_PROJECT_DIR:-${1:-$PWD/.claude/skills}}"
+GLOBAL_DIR="${SKILL_STOCKTAKE_GLOBAL_DIR:-$HOME/.config/opencode/skills}"
+CWD_SKILLS_DIR="${SKILL_STOCKTAKE_PROJECT_DIR:-${1:-$PWD/.config/opencode/skills}}"
 # Path to JSONL file containing tool-use observations (optional; used for usage frequency counts).
 # Override via SKILL_STOCKTAKE_OBSERVATIONS env var if your setup uses a different path.
-OBSERVATIONS="${SKILL_STOCKTAKE_OBSERVATIONS:-$HOME/.claude/observations.jsonl}"
+OBSERVATIONS="${SKILL_STOCKTAKE_OBSERVATIONS:-$HOME/.config/opencode/observations.jsonl}"
 
-# Validate CWD_SKILLS_DIR looks like a .claude/skills path (defense-in-depth).
+# Validate CWD_SKILLS_DIR looks like a .config/opencode/skills path (defense-in-depth).
 # Only warn when the path exists — a nonexistent path poses no traversal risk.
-if [[ -n "$CWD_SKILLS_DIR" && -d "$CWD_SKILLS_DIR" && "$CWD_SKILLS_DIR" != */.claude/skills* ]]; then
-  echo "Warning: CWD_SKILLS_DIR does not look like a .claude/skills path: $CWD_SKILLS_DIR" >&2
+if [[ -n "$CWD_SKILLS_DIR" && -d "$CWD_SKILLS_DIR" && "$CWD_SKILLS_DIR" != */.config/opencode/skills* ]]; then
+  echo "Warning: CWD_SKILLS_DIR does not look like a .config/opencode/skills path: $CWD_SKILLS_DIR" >&2
 fi
 
 # Extract a frontmatter field (handles both quoted and unquoted single-line values).

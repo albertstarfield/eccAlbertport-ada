@@ -98,5 +98,5 @@ every `skills/` entry to have a Cursor copy.
 ## Related Skills
 
 - `skill-comply` — runtime behavioral traces, not host-portability
-- `skill-stocktake` — holistic audit of installed `~/.claude/skills`
+- `skill-stocktake` — holistic audit of installed `~/.config/opencode/skills`
 - `skill-scout` — search existing skills before creating a new one

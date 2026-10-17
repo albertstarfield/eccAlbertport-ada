@@ -2,6 +2,14 @@
 name: docker-patterns
 description: Docker and Docker Compose patterns for local development, hardened CLI installer harnesses, container security, networking, volumes, and multi-service orchestration. Use when creating or reviewing Dockerfiles and Compose services, testing installers across Linux distributions, or planning accurate native macOS and Windows validation.
 ---
+> **ARCHITECTURE NOTE (OpenCode/Ada-First)**: This project follows an Ada/SPARK-first
+> architecture.  All business logic, classification, gating, and state management MUST
+> be implemented in Ada/SPARK (SPARK_Mode => On).  Python is used ONLY as an FFI wrapper.
+> JavaScript is BANNED as a source language.  TypeScript is permitted ONLY for the
+> OpenCode plugin host API.  When this skill references implementation languages,
+> prioritize Ada/SPARK.  See `ecc_adapter/` for the verified core.
+
+
 
 # Docker Patterns
 

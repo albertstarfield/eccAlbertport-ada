@@ -38,18 +38,18 @@ Over many sessions of "ship and forget," the human hasn't grown. This hook enfor
 From the ECC repository root:
 
 ```bash
-mkdir -p ~/.claude/scripts
-cp skills/delivery-gate/hooks/quality-gate.py ~/.claude/scripts/
+mkdir -p ~/.config/opencode/scripts
+cp skills/delivery-gate/hooks/quality-gate.py ~/.config/opencode/scripts/
 ```
 
-Add to `~/.claude/settings.json`:
+Add to `~/.config/opencode/settings.json`:
 ```json
 {
   "hooks": {
     "Stop": [{
       "hooks": [{
         "type": "command",
-        "command": "python3 ~/.claude/scripts/quality-gate.py",
+        "command": "python3 ~/.config/opencode/scripts/quality-gate.py",
         "timeout": 5000
       }]
     }]

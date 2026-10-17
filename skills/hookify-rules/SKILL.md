@@ -11,7 +11,7 @@ ECC evaluates project-local Hookify rules with its built-in Node runtime. No
 separate Hookify plugin or Python installation is required when ECC hooks are
 enabled.
 
-Hookify rules are markdown files with YAML frontmatter that define patterns to watch for and messages to show when those patterns match. Rules are stored in `.claude/hookify.{rule-name}.local.md` files.
+Hookify rules are markdown files with YAML frontmatter that define patterns to watch for and messages to show when those patterns match. Rules are stored in `.config/opencode/hookify.{rule-name}.local.md` files.
 
 ## Rule File Format
 
@@ -124,9 +124,9 @@ gitignored rules created locally remain active without that override.
 
 ## File Organization
 
-- **Location**: `.claude/` directory in project root
-- **Naming**: `.claude/hookify.{descriptive-name}.local.md`
-- **Gitignore**: Add `.claude/*.local.md` to `.gitignore`
+- **Location**: `.config/opencode/` directory in project root
+- **Naming**: `.config/opencode/hookify.{descriptive-name}.local.md`
+- **Gitignore**: Add `.config/opencode/*.local.md` to `.gitignore`
 
 ## Commands
 

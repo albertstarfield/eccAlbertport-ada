@@ -143,9 +143,9 @@ YAML file, so the first-touch gate classifies the target first.
 Classification uses the target's path relative to the project root
 (`CLAUDE_PROJECT_DIR`, then the payload `cwd`, then the process directory),
 so a project that lives under, say, `~/work/tests/` does not turn every file
-into a test. A leading `.claude/worktrees/<name>/` is stripped, since a
+into a test. A leading `.config/opencode/worktrees/<name>/` is stripped, since a
 worktree mirrors the project, but only when
-`<root>/.claude/worktrees/<name>/.git` exists; otherwise the path stays under
+`<root>/.config/opencode/worktrees/<name>/.git` exists; otherwise the path stays under
 `.claude`. On Windows-style paths (and any segment containing `::$`), trailing
 dots/spaces and a `:stream` suffix are dropped first, so `CLAUDE.md.` and
 `CLAUDE.md::$DATA` classify as `CLAUDE.md`. Targets outside the root are
@@ -502,7 +502,7 @@ would be identical, so only the first is denied:
   followed; missing directories are resolved from the nearest existing
   parent). If that differs from the path as written, the real path must be
   inside the project, keep the same class, and pass the same screen, so a
-  symlink such as `src/tools -> .claude/hooks` never collapses. Gates are
+  symlink such as `src/tools -> .config/opencode/hooks` never collapses. Gates are
   keyed by the real directory. Any filesystem error means no collapse.
 - After such a Write is denied, later first-touch Writes of new files **of the
   same class in the same directory** are allowed with the note "Sibling of

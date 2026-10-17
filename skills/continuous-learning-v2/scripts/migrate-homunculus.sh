@@ -3,7 +3,7 @@
 # continuous-learning-v2 data directory.
 set -euo pipefail
 
-OLD="${HOME}/.claude/homunculus"
+OLD="${HOME}/.config/opencode/homunculus"
 
 # shellcheck disable=SC1091
 . "$(dirname "$0")/lib/homunculus-dir.sh"
@@ -54,12 +54,12 @@ else
   exit 1
 fi
 
-settings="${HOME}/.claude/settings.json"
+settings="${HOME}/.config/opencode/settings.json"
 if [ -f "$settings" ] && grep -q '"CLV2_CONFIG"' "$settings" 2>/dev/null; then
-  if grep -q '\.claude/homunculus' "$settings" 2>/dev/null; then
+  if grep -q '\.config/opencode/homunculus' "$settings" 2>/dev/null; then
     cat >&2 <<WARN
 
-Advisory: ~/.claude/settings.json still sets CLV2_CONFIG under the old path.
+Advisory: ~/.config/opencode/settings.json still sets CLV2_CONFIG under the old path.
 Update it to: ${NEW}/config.json
 (Not editing settings.json automatically.)
 

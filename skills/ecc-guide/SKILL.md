@@ -135,7 +135,7 @@ Use `/project-init` when the user wants ECC configured for a target repo. The ex
 Ask for the target harness and install path first, then inspect:
 
 - plugin install metadata
-- `.claude/`, `.cursor/`, `.codex/`, `.gemini/`, `.opencode/`, `.codebuddy/`, `.joycode/`, or `.qwen/`
+- `.config/opencode/`, `.cursor/`, `.codex/`, `.gemini/`, `.opencode/`, `.codebuddy/`, `.joycode/`, or `.qwen/`
 - `hooks/hooks.json`
 - install-state files
 - relevant command/skill files

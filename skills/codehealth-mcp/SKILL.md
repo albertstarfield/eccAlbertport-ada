@@ -40,7 +40,7 @@ Same triggers as **When to Use** above — this heading is what ECC uses for ski
 
 Copy the `codescene` entry from `mcp-configs/mcp-servers.json` into your harness MCP config.
 
-**Claude Code** (`~/.claude.json` → `mcpServers`):
+**Claude Code** (`~/.config/opencode.json` → `mcpServers`):
 
 ```json
 "codescene": {

@@ -1,6 +1,6 @@
 ---
 name: security-scan
-description: Scan your Claude Code configuration (.claude/ directory) for security vulnerabilities, misconfigurations, and injection risks using AgentShield. Checks CLAUDE.md, settings.json, MCP servers, hooks, and agent definitions. Use when auditing a .claude/ directory — CLAUDE.md, settings.json, MCP servers, hooks, or agent definitions.
+description: Scan your Claude Code configuration (.config/opencode/ directory) for security vulnerabilities, misconfigurations, and injection risks using AgentShield. Checks CLAUDE.md, settings.json, MCP servers, hooks, and agent definitions. Use when auditing a .config/opencode/ directory — CLAUDE.md, settings.json, MCP servers, hooks, or agent definitions.
 metadata:
   origin: ECC
 ---
@@ -12,7 +12,7 @@ Audit your Claude Code configuration for security issues using [AgentShield](htt
 ## When to Activate
 
 - Setting up a new Claude Code project
-- After modifying `.claude/settings.json`, `CLAUDE.md`, or MCP configs
+- After modifying `.config/opencode/settings.json`, `CLAUDE.md`, or MCP configs
 - Before committing configuration changes
 - When onboarding to a new repository with existing Claude Code configs
 - Periodic security hygiene checks
@@ -46,7 +46,7 @@ npx ecc-agentshield scan .
 
 ### Basic Scan
 
-Run against the current project's `.claude/` directory:
+Run against the current project's `.config/opencode/` directory:
 
 ```bash
 # Scan current project
@@ -105,7 +105,7 @@ This runs:
 
 ### Initialize Secure Config
 
-Scaffold a new secure `.claude/` configuration from scratch:
+Scaffold a new secure `.config/opencode/` configuration from scratch:
 
 ```bash
 npx ecc-agentshield init

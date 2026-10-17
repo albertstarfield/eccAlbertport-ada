@@ -4,6 +4,14 @@ description: Baseline cross-project coding conventions for naming, readability, 
 metadata:
   origin: ECC
 ---
+> **ARCHITECTURE NOTE (OpenCode/Ada-First)**: This project follows an Ada/SPARK-first
+> architecture.  All business logic, classification, gating, and state management MUST
+> be implemented in Ada/SPARK (SPARK_Mode => On).  Python is used ONLY as an FFI wrapper.
+> JavaScript is BANNED as a source language.  TypeScript is permitted ONLY for the
+> OpenCode plugin host API.  When this skill references implementation languages,
+> prioritize Ada/SPARK.  See `ecc_adapter/` for the verified core.
+
+
 
 # Coding Standards & Best Practices
 

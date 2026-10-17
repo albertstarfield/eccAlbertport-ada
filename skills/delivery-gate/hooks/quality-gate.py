@@ -4,7 +4,7 @@ Stop hook: quality gate with delivery check.
 Detects incomplete work, stale learning logs, and low disk space.
 Blocks Claude from stopping when a complex task completed without learning capture.
 
-Install: cp this file to ~/.claude/scripts/quality-gate.py
+Install: cp this file to ~/.config/opencode/scripts/quality-gate.py
 Configure: Add to settings.json hooks.Stop
 """
 from __future__ import annotations
@@ -56,7 +56,7 @@ def get_project_memory_dir() -> Optional[str]:
     Does NOT fall back to other projects (privacy boundary)."""
     cwd = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
     safe = cwd.replace(':', '-').replace('\\', '-').replace('/', '-')
-    mem = os.path.expanduser(f'~/.claude/projects/{safe}/memory')
+    mem = os.path.expanduser(f'~/.config/opencode/projects/{safe}/memory')
     log.info('Looking for memory dir: cwd=%s -> %s', cwd, mem)
     if os.path.isdir(mem):
         return mem

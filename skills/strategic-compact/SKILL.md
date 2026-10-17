@@ -40,9 +40,9 @@ Tool count alone is a weak proxy for window pressure: a few large file reads or 
 
 ## Hook Setup
 
-**Installed as a plugin?** No setup is needed. The plugin's `hooks/hooks.json` already registers `suggest-compact.js` (hook id `pre:edit-write:suggest-compact`, active in the `standard` and `strict` hook profiles). Do not copy the block below into `~/.claude/settings.json` — `~/.claude/scripts/` does not exist on plugin installs, and duplicating a plugin hook causes double execution.
+**Installed as a plugin?** No setup is needed. The plugin's `hooks/hooks.json` already registers `suggest-compact.js` (hook id `pre:edit-write:suggest-compact`, active in the `standard` and `strict` hook profiles). Do not copy the block below into `~/.config/opencode/settings.json` — `~/.config/opencode/scripts/` does not exist on plugin installs, and duplicating a plugin hook causes double execution.
 
-**If installed manually** (`./install.sh`), add to your `~/.claude/settings.json`:
+**If installed manually** (`./install.sh`), add to your `~/.config/opencode/settings.json`:
 
 ```json
 {
@@ -50,11 +50,11 @@ Tool count alone is a weak proxy for window pressure: a few large file reads or 
     "PreToolUse": [
       {
         "matcher": "Edit",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/scripts/hooks/suggest-compact.js" }]
+        "hooks": [{ "type": "command", "command": "node ~/.config/opencode/scripts/hooks/suggest-compact.js" }]
       },
       {
         "matcher": "Write",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/scripts/hooks/suggest-compact.js" }]
+        "hooks": [{ "type": "command", "command": "node ~/.config/opencode/scripts/hooks/suggest-compact.js" }]
       }
     ]
   }
@@ -94,7 +94,7 @@ Understanding what persists helps you compact with confidence:
 |----------|------|
 | CLAUDE.md instructions | Intermediate reasoning and analysis |
 | Files on disk | File contents you previously read |
-| Memory files (`~/.claude/memory/`) | Multi-step conversation context |
+| Memory files (`~/.config/opencode/memory/`) | Multi-step conversation context |
 | Git state (commits, branches) | Tool call history and counts |
 | The task list — **only if you have the todo tools** (see below) | Nuanced user preferences stated verbally |
 
@@ -141,7 +141,7 @@ Monitor what's consuming your context window:
 
 ### Duplicate Instruction Detection
 Common sources of duplicate context:
-- Same rules in both `~/.claude/rules/` and project `.claude/rules/`
+- Same rules in both `~/.config/opencode/rules/` and project `.config/opencode/rules/`
 - Skills that repeat CLAUDE.md instructions
 - Multiple skills covering overlapping domains
 

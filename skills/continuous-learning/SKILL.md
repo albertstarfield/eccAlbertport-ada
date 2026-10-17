@@ -21,7 +21,7 @@ Automatically evaluates Claude Code sessions on end to extract reusable patterns
 
 - Setting up automatic pattern extraction from Claude Code sessions
 - Configuring the Stop hook for session evaluation
-- Reviewing or curating learned skills in `~/.claude/skills/learned/`
+- Reviewing or curating learned skills in `~/.config/opencode/skills/learned/`
 - Adjusting extraction thresholds or pattern categories
 - Comparing v1 (this) vs v2 (instinct-based) approaches
 
@@ -35,7 +35,7 @@ This skill runs as a **Stop hook** at the end of each session:
 
 1. **Session Evaluation**: Checks if session has enough messages (default: 10+)
 2. **Pattern Detection**: Identifies extractable patterns from the session
-3. **Skill Extraction**: Saves useful patterns to `~/.claude/skills/learned/`
+3. **Skill Extraction**: Saves useful patterns to `~/.config/opencode/skills/learned/`
 
 ## Configuration
 
@@ -46,7 +46,7 @@ Edit `config.json` to customize:
   "min_session_length": 10,
   "extraction_threshold": "medium",
   "auto_approve": false,
-  "learned_skills_path": "~/.claude/skills/learned/",
+  "learned_skills_path": "~/.config/opencode/skills/learned/",
   "patterns_to_detect": [
     "error_resolution",
     "user_corrections",
@@ -74,7 +74,7 @@ Edit `config.json` to customize:
 
 ## Hook Setup
 
-Add to your `~/.claude/settings.json`:
+Add to your `~/.config/opencode/settings.json`:
 
 ```json
 {
@@ -83,7 +83,7 @@ Add to your `~/.claude/settings.json`:
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "~/.claude/skills/continuous-learning/evaluate-session.sh"
+        "command": "~/.config/opencode/skills/continuous-learning/evaluate-session.sh"
       }]
     }]
   }

@@ -24,7 +24,7 @@ different sources and produce different things:
 
 | | `/cost-report` | Token Card |
 |---|---|---|
-| Source | `~/.claude/metrics/costs.jsonl`, written by ECC's `stop:cost-tracker` hook | The agents' own session logs |
+| Source | `~/.config/opencode/metrics/costs.jsonl`, written by ECC's `stop:cost-tracker` hook | The agents' own session logs |
 | Agents | Claude Code | Claude Code, Codex, Gemini CLI, OpenCode |
 | Output | Terminal summary, optional CSV | An SVG file committed to the repo |
 

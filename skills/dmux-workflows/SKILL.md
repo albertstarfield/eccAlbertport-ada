@@ -175,7 +175,7 @@ Use `seedPaths` when workers need access to dirty or untracked local files that 
   "seedPaths": [
     "scripts/orchestrate-worktrees.js",
     "scripts/lib/tmux-worktree-orchestrator.js",
-    ".claude/plan/workflow-e2e-test.json"
+    ".config/opencode/plan/workflow-e2e-test.json"
   ],
   "launcherCommand": "bash {repo_root}/scripts/orchestrate-codex-worker.sh {task_file} {handoff_file} {status_file}",
   "workers": [
