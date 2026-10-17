@@ -21,7 +21,8 @@
     ".config/opencode/rules/ecc/common/agents.md",
     ".config/opencode/rules/ecc/common/security.md",
     ".config/opencode/rules/ecc/common/development-workflow.md",
-    ".config/opencode/rules/ecc/common/code-review.md"
+    ".config/opencode/rules/ecc/common/code-review.md",
+    ".config/opencode/rules/ecc/common/auto-invoke.md"
   ],
   "mcp": {
     "servers": {
