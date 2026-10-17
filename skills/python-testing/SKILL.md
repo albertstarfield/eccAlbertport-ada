@@ -7,7 +7,7 @@ metadata:
 
 > **OpenCode Paradigm (Ada/SPARK-First)**: This project uses Ada/SPARK as the primary
 > implementation language.  Python tests verify the FFI boundary only — business logic
-> is tested in Ada/SPARK (gnattest + gnatprove).  Validation: `pyrefly check .` + `ruff check .`.
+> is tested in Ada/SPARK (gnattest + gnatprove).  Validation: `pyrefly check .` + `ruff check .` + `crosshair check`.
 > Approval gates required before execution.
 
 # Python FFI Testing (OpenCode Paradigm)
@@ -156,4 +156,4 @@ def test_wrapper_handles_ada_failure():
 - Ada tests: `ecc_adapter/test/` (gnattest)
 - Ada proofs: `ecc_adapter/proofs/` (Lean + Rocq)
 - Python tests: `ecc_adapter/tests/` (pytest)
-- Validation: `pyrefly check .` + `ruff check .`
+- Validation: `pyrefly check .` + `ruff check .` + `crosshair check`

@@ -124,4 +124,4 @@ def call_ada_function(name: str) -> int:
 - Ada core: `ecc_adapter/src/ecc_*.ads` / `.adb`
 - C ABI: `ecc_adapter/src/ecc_c_api.ads` / `.adb`
 - Python bridge: `ecc_adapter/run.py`
-- Validation: `pyrefly check .` + `ruff check .`
+- Validation: `pyrefly check .` + `ruff check .` + `crosshair check`

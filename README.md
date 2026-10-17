@@ -78,17 +78,31 @@ OpenCode plugin host API (sanctioned carve-out per platform requirements).
 from ctypes.  This is the correct, minimal trust boundary.  All business logic is in
 SPARK_Mode On packages.
 
-### Formal Verification
+### Formal Verification (Scratch Paper for ALL Languages)
 
-| Verifier | File | Result |
-|---|---|---|
-| Lean 4.35 | `proofs/lean/EccClassification.lean` | ✅ 6 theorems |
-| Rocq 8.18 | `proofs/rocq/EccClassification.v` | ✅ 8 lemmas |
-| GNATprove | `src/*.adb` | ✅ 195/195 checks, 0 unproved |
+Lean and Rocq are used as **formal scratch paper** to verify that theorems and logic are
+correct — not hallucinated — across ALL implementation languages (Ada, Python, TypeScript, C).
+GNATprove verifies the Ada/SPARK implementation. CrossHair + pyrefly + ruff verify Python.
+
+| Verifier | Scope | File | Result |
+|---|---|---|---|
+| Lean 4.35 | Logic/theorems (ALL languages) | `proofs/lean/EccClassification.lean` | ✅ 6 theorems |
+| Rocq 8.18 | Logic/theorems (ALL languages) | `proofs/rocq/EccClassification.v` | ✅ 8 lemmas |
+| GNATprove | Ada/SPARK implementation | `src/*.adb` | ✅ 195/195 checks, 0 unproved |
+| CrossHair | Python FFI boundary | `run.py` | Symbolic execution |
+| pyrefly | Python type checking | `*.py` | Must pass |
+| ruff | Python linting | `*.py` | Must pass |
 
 **Proofs cover**: tool mapping correctness, effect gating safety (SE4 never auto-proceeds),
 agent mode inference (only "orchestrator" is primary), command classification totality,
 suffix matching correctness, deny-by-default policy.
+
+**Verification workflow** (mandatory order):
+1. First use Lean + Rocq as scratch paper to validate logic/theorems are sound BEFORE coding
+2. Implement in Ada/SPARK
+3. Prove with gnatprove (--mode=all --level=4)
+4. Prove again with Lean + Rocq to confirm logic/theorems are valid
+5. For Python FFI: pyrefly + ruff + CrossHair
 
 ## What's Inside
 
@@ -208,10 +222,13 @@ DYLD_LIBRARY_PATH=$(find_gnat_lib) .venv/bin/python run.py selftest
 - Selftest on load
 - Hook timeout (10s per script)
 
-### Layer 5: Formal Proofs
-- Lean 4: 6 theorems (mapping, gating, mode, totality)
-- Rocq: 8 lemmas (same + suffix matching)
-- GNATprove: 195 checks, 0 unproved
+### Layer 5: Formal Proofs (Scratch Paper for ALL Languages)
+- Lean 4: 6 theorems — scratch paper for ALL languages (mapping, gating, mode, totality)
+- Rocq: 8 lemmas — scratch paper for ALL languages (same + suffix matching)
+- GNATprove: 195 checks, 0 unproved — Ada/SPARK implementation verification
+- CrossHair: Python FFI boundary — symbolic execution (counterexamples, edge cases)
+- pyrefly: Python type checking — type errors, missing annotations
+- ruff: Python linting — style, security, best practices
 
 ## Key Concepts
 
