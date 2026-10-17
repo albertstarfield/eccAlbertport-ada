@@ -1,5 +1,13 @@
 export const id = "local/eccAlbertPort-adaSpark-Hybrid-FuckYouJSStatusquo-arch-autocontinue"
 
+const NEEDLE = "ECC_NEEDLE_COMPLETE"
+const LAZY_PHRASES = [
+  "remaining", "i'll do later", "close enough", "good enough",
+  "partially", "for now", "to be continued", "in a follow-up",
+  "remaining work", "left to do", "not yet", "todo", "will finish",
+  "next time", "later", "skipped", "deferred",
+]
+
 const setup = async (ctx: any): Promise<() => void> => {
   const { execFileSync } = await import("child_process")
   const fs = await import("fs")
@@ -42,26 +50,54 @@ const setup = async (ctx: any): Promise<() => void> => {
     try { execFileSync("alr", ["-n", "build"], { cwd: ADAPTER_DIR, stdio: "inherit", env: ENV }) } catch (e) { console.error("[ecc-auto-continue] build failed:", e) }
   }
 
-  // Auto-continue logic: on session.idle with pending work, send "continue".
   const pending = new Set<string>()
+  const lastMessage = new Map<string, string>()
+
+  const hasNeedle = (text: string): boolean => {
+    return text.includes(NEEDLE)
+  }
+
+  const isLazy = (text: string): boolean => {
+    const lower = text.toLowerCase()
+    return LAZY_PHRASES.some((p) => lower.includes(p))
+  }
+
   try {
     const sub = ctx.event.subscribe()
     ;(async () => {
       for await (const ev of sub) {
         const type = (ev as any)?.type || (ev as any)?.event || ""
+        const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
+
+        // Track last agent message
+        if (type === "message.created" || type === "assistant.message" || type === "message.assistant") {
+          const text = (ev as any)?.text || (ev as any)?.content || (ev as any)?.message?.content || ""
+          if (sid && text) lastMessage.set(sid, text)
+        }
+
+        // On failure, mark pending
         if (type === "session.execution.failed" || type === "session.step.failed") {
-          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
           if (sid) { pending.add(sid); try { await ctx.session.prompt({ sessionID: sid, text: "continue" }) } catch {} }
         }
+
+        // On idle: check needle
         if (type === "session.idle") {
-          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
-          if (sid && pending.has(sid)) {
-            pending.delete(sid)
-            try { await ctx.session.prompt({ sessionID: sid, text: "continue" }) } catch {}
+          if (sid) {
+            const msg = lastMessage.get(sid) || ""
+            const hasN = hasNeedle(msg)
+            const lazy = isLazy(msg)
+            if (!hasN || lazy) {
+              console.log("[ecc-auto-continue] NEEDLE MISSING or LAZY detected — auto-continuing", { hasN, lazy, sid })
+              pending.delete(sid)
+              try { await ctx.session.prompt({ sessionID: sid, text: "continue — you must output " + NEEDLE + " when truly complete, or keep working" }) } catch {}
+            } else {
+              console.log("[ecc-auto-continue] NEEDLE found — genuine completion", { sid })
+              pending.delete(sid)
+            }
           }
         }
+
         if (type === "session.retry.scheduled") {
-          const sid = (ev as any)?.sessionID || (ev as any)?.session?.id
           if (sid) pending.delete(sid)
         }
       }
@@ -70,7 +106,7 @@ const setup = async (ctx: any): Promise<() => void> => {
     console.error("[ecc-auto-continue] subscribe failed:", e)
   }
 
-  console.log("[ecc-auto-continue] loaded (ECC-enforced continue)")
+  console.log("[ecc-auto-continue] loaded (NEEDLE=" + NEEDLE + ")")
   return () => { console.log("[ecc-auto-continue] unloaded") }
 }
 

@@ -26,3 +26,17 @@ via the `subagent` tool. Do not attempt complex specialized tasks solo.
 The agent should proactively discover and use relevant skills, commands, and agents
 rather than waiting for explicit user invocation. This is the ECC paradigm: the harness
 automatically augments the agent with the right tools for the job.
+
+## Completion Needle (Auto-Continue Enforcement)
+
+The system uses a "Needle in the haystack" mechanism to detect genuine completion:
+
+- **NEEDLE**: `ECC_NEEDLE_COMPLETE`
+- The agent MUST output this exact string when ALL work is truly finished
+- If the agent stops without outputting the needle, the system auto-continues
+- Lazy phrases ("remaining", "I'll do later", "close enough", "good enough",
+  "partially", "for now", "to be continued", "skipped", "deferred", etc.)
+  trigger auto-continue even if present
+
+**Rule**: Never say "done" without `ECC_NEEDLE_COMPLETE`. If you haven't
+finished everything, keep working. The needle is the ONLY valid completion signal.
